@@ -1,0 +1,135 @@
+import React, { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { Idea, IdeaTag, TAG_MAP } from '../types'
+import { X, Shield } from 'lucide-react'
+
+interface Props {
+  editingIdea: Idea | null
+  onSave: (data: { title: string; body: string; tag: IdeaTag; score: number }) => void
+  onClose: () => void
+}
+
+const TAG_OPTIONS = Object.entries(TAG_MAP) as [IdeaTag, { label: string; color: string; gradient: string }][]
+
+export default function ComposeModal({ editingIdea, onSave, onClose }: Props) {
+  const [title, setTitle] = useState('')
+  const [body, setBody] = useState('')
+  const [tag, setTag] = useState<IdeaTag>('env')
+  const [score, setScore] = useState(5)
+
+  useEffect(() => {
+    if (editingIdea) {
+      setTitle(editingIdea.title)
+      setBody(editingIdea.body)
+      setTag(editingIdea.tag)
+      setScore(editingIdea.score ?? 5)
+    } else {
+      setTitle(''); setBody(''); setTag('env'); setScore(5)
+    }
+  }, [editingIdea])
+
+  const pct = ((score - 1) / 9 * 100).toFixed(1)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="absolute inset-0 z-50 flex items-end justify-center"
+    >
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
+      <motion.div
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', stiffness: 380, damping: 38 }}
+        className="relative w-full bg-zinc-950 border-t border-zinc-800 rounded-t-3xl p-5 pb-8 flex flex-col gap-4 max-h-[92%] overflow-y-auto shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="w-10 h-1 bg-neutral-700 rounded-full mx-auto mb-1" />
+
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-emerald-400" />
+            <span className="text-xs font-black uppercase tracking-widest text-neutral-300">
+              {editingIdea ? '아이디어 수정' : '새 아이디어'}
+            </span>
+          </div>
+          <button onClick={onClose}
+            className="w-7 h-7 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div>
+          <label className="text-[9px] font-black uppercase tracking-widest text-neutral-500 mb-1.5 block">제목</label>
+          <input
+            autoFocus
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={80}
+            placeholder="캠페인 제목"
+            className="w-full bg-neutral-900 border border-neutral-800 text-white rounded-xl px-4 py-3 text-base font-black focus:outline-none focus:border-neutral-600 transition placeholder-neutral-600"
+          />
+        </div>
+
+        <div>
+          <label className="text-[9px] font-black uppercase tracking-widest text-neutral-500 mb-1.5 block">내용</label>
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="캠페인 내용, 목표, 방법..."
+            rows={4}
+            className="w-full bg-neutral-900 border border-neutral-800 text-white rounded-xl px-4 py-3 text-sm leading-relaxed focus:outline-none focus:border-neutral-600 transition placeholder-neutral-600 resize-none"
+          />
+        </div>
+
+        <div>
+          <label className="text-[9px] font-black uppercase tracking-widest text-neutral-500 mb-2 block">카테고리</label>
+          <div className="grid grid-cols-4 gap-2">
+            {TAG_OPTIONS.map(([key, info]) => (
+              <button
+                key={key}
+                onClick={() => setTag(key)}
+                className={`py-2 px-1 rounded-xl text-[10px] font-black transition border ${
+                  tag === key
+                    ? `${info.color} text-[#111] border-transparent shadow-md`
+                    : 'bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white'
+                }`}
+              >
+                {info.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <label className="text-[9px] font-black uppercase tracking-widest text-neutral-500">점수</label>
+            <span className="text-2xl font-black text-white">{score}<span className="text-sm text-neutral-500">/10</span></span>
+          </div>
+          <input
+            type="range" min={1} max={10} value={score}
+            onChange={(e) => setScore(Number(e.target.value))}
+            className="w-full h-1.5 rounded-full appearance-none cursor-pointer accent-white"
+            style={{ background: `linear-gradient(to right,white 0%,white ${pct}%,rgba(255,255,255,0.12) ${pct}%,rgba(255,255,255,0.12) 100%)` }}
+          />
+        </div>
+
+        <div className="flex gap-3 mt-1">
+          <button onClick={onClose}
+            className="flex-1 py-3 rounded-2xl border border-neutral-800 text-neutral-400 text-sm font-bold hover:bg-neutral-900 transition">
+            취소
+          </button>
+          <button
+            onClick={() => { if (title.trim()) onSave({ title: title.trim(), body: body.trim(), tag, score }) }}
+            disabled={!title.trim()}
+            className="flex-1 py-3 rounded-2xl bg-white text-black text-sm font-black hover:bg-neutral-200 disabled:opacity-30 disabled:cursor-not-allowed transition"
+          >
+            {editingIdea ? '저장' : '등록'}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}

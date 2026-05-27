@@ -1,0 +1,29 @@
+export type IdeaTag = 'env' | 'human' | 'health' | 'edu' | 'community' | 'animal' | 'peace' | 'other'
+
+export interface TagInfo {
+  label: string
+  color: string
+  gradient: string
+}
+
+export const TAG_MAP: Record<IdeaTag, TagInfo> = {
+  env:       { label: '환경·기후',   color: 'bg-sky-300',     gradient: 'linear-gradient(145deg,rgba(168,204,224,0.82)0%,rgba(168,204,224,0.58)100%)' },
+  human:     { label: '인권·평등',   color: 'bg-rose-300',    gradient: 'linear-gradient(145deg,rgba(232,160,144,0.82)0%,rgba(232,160,144,0.58)100%)' },
+  health:    { label: '보건·복지',   color: 'bg-green-300',   gradient: 'linear-gradient(145deg,rgba(184,212,176,0.82)0%,rgba(184,212,176,0.58)100%)' },
+  edu:       { label: '교육·청소년', color: 'bg-purple-300',  gradient: 'linear-gradient(145deg,rgba(200,180,216,0.82)0%,rgba(200,180,216,0.58)100%)' },
+  community: { label: '지역사회',    color: 'bg-amber-300',   gradient: 'linear-gradient(145deg,rgba(240,200,120,0.82)0%,rgba(240,200,120,0.58)100%)' },
+  animal:    { label: '동물권',      color: 'bg-orange-200',  gradient: 'linear-gradient(145deg,rgba(232,208,168,0.82)0%,rgba(232,208,168,0.58)100%)' },
+  peace:     { label: '평화·안보',   color: 'bg-teal-300',    gradient: 'linear-gradient(145deg,rgba(160,196,208,0.82)0%,rgba(160,196,208,0.58)100%)' },
+  other:     { label: '기타',        color: 'bg-neutral-300', gradient: 'linear-gradient(145deg,rgba(216,208,200,0.82)0%,rgba(216,208,200,0.58)100%)' },
+}
+
+export interface Idea {
+  id: string
+  title: string
+  body: string
+  tag: IdeaTag
+  score: number | null
+  created_at: string
+  date: string
+  user_id?: string
+}
